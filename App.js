@@ -3,6 +3,7 @@ import { Button, StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } f
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
+import { Sound } from './node_modules/expo-av/build/Audio';
 
 export default function App() {
     const [recording, setRecording] = useState(null);
@@ -65,13 +66,21 @@ export default function App() {
             if (playback) {
                 await playback.stopAsync();
                 setIsPlaying(false);
+            }
+
+            if (loopOptions[0]) {
+                const { sound } = await Audio.Sound.createAsync({ uri: recordings[0] });
+                await sound.stopAsync();
+            }
                  Object.keys(loopOptions).forEach(async (index) => {
-                    if (loopOptions[index]) {
+                     if (index !== '0' && loopOptions[index]) {
                         const { sound } = await Audio.Sound.createAsync({ uri: recordings[index] });
                         await sound.stopAsync();
                     }
-                });
-            }
+                 });
+
+        //    await sound.stopAsync();
+         /*   await playback.stopAndUnloadAsync();*/
         } catch (error) {
             console.error('Failed to stop playback:', error);
         }
