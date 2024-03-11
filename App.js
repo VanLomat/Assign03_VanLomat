@@ -10,8 +10,8 @@ export default function App() {
     const [playback, setPlayback] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [looping, setLooping] = useState(false);
-    const [permissionResponse, requestPermission] = Audio.usePermissions();
     const [loopOptions, setLoopOptions] = useState({});
+    const [permissionResponse, requestPermission] = Audio.usePermissions();
 
     const startRecording = async () => {
         try {
@@ -46,7 +46,7 @@ export default function App() {
             setRecording(undefined);
             console.log('Recording stopped and stored at', uri);
         } catch (e) {
-            console.error("Failed to stop recording", e);
+            console.error("Failed to stop recording ()", e);
         }
     };
 
@@ -65,6 +65,12 @@ export default function App() {
             if (playback) {
                 await playback.stopAsync();
                 setIsPlaying(false);
+                 Object.keys(loopOptions).forEach(async (index) => {
+                    if (loopOptions[index]) {
+                        const { sound } = await Audio.Sound.createAsync({ uri: recordings[index] });
+                        await sound.stopAsync();
+                    }
+                });
             }
         } catch (error) {
             console.error('Failed to stop playback:', error);
@@ -140,7 +146,7 @@ export default function App() {
                                 style={styles.button}
                             >
                                 <Button
-                                    title={`Play ${index + 1}`}
+                                    title={`Sound ${index + 1}`}
                                     onPress={() => playRecording(uri, index)}
                                     style={styles.innerButton}
                                 />
@@ -150,7 +156,7 @@ export default function App() {
                                 style={styles.picker}
                                 onValueChange={(value) => handlePickerChange(index, value)}
                             >
-                                <Picker.Item label="Play Once" value={false} />
+                                <Picker.Item label="Once" value={false} />
                                 <Picker.Item label="Loop" value={true} />
                             </Picker>
                         </View>
