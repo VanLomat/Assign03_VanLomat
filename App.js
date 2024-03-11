@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { Button, StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
 
@@ -60,6 +60,22 @@ export default function App() {
         //onsole.log('Playing recorded sound from ', recordingURI);
     };
 
+    const deleteRecording = (index) => {
+        Alert.alert(
+            'Delete Recording',
+            'Are you sure you want to delete this recording?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    onPress: () => {
+                        setRecordings((prevRecordings) => prevRecordings.filter((_, i) => i !== index));
+                    },
+                },
+            ]
+        );
+    };
+
     // stops recording and mic when the app stops
     useEffect(() => {
         return recording
@@ -78,12 +94,24 @@ export default function App() {
                 <StatusBar style="auto" />
 
             </View>
-            <ScrollView>
+            <ScrollView horizontal={true}>
+                <View style={styles.buttonContainer}>
                 {recordings.map((uri, index) => (
-                    <Button key={index} title={`Play recording ${index + 1}`}
-                        onPress={() => playRecording(uri)}
-                    />
+                    
+
+                    <TouchableOpacity
+                        key={index}
+                        onLongPress={() => deleteRecording(index)}
+                        style={styles.button}
+                    >
+                        <Button
+                            title={`Play ${index + 1}`}
+                            onPress={() => playRecording(uri)}
+                            style={styles.innerButton}
+                        />
+                    </TouchableOpacity>
                 ))}
+                </View>
             </ScrollView>
         </View>
     );
@@ -101,8 +129,22 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         alignItems: 'center',
     },
+
+    buttonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 2,
+        marginTop: 20,
+    },
     scrollView: {
         flex: 1,
     },
-
+    button: {
+        flex: 1,
+        padding: 5,
+        minWidth:20,
+        marginHorizontal: 5, 
+        
+    },
 });
